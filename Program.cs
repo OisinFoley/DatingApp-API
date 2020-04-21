@@ -13,7 +13,7 @@ namespace DatingApp.API
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            // TODO: use extensioj method to tidy up calling this Seed functionality
+            // TODO: use extension method to tidy up calling this Seed functionality
             using (var scope  = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
