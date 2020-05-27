@@ -135,7 +135,7 @@ namespace DatingApp.API.Data
                     break;
                 case "Outbox":
                     messages = messages.Where(u => u.SenderId == messageParams.UserId
-                        && u.SenderDelete == false);
+                        && u.SenderDeleted == false);
                     break;
                 default:
                     messages = messages.Where(u => u.RecipientId == messageParams.UserId
@@ -143,7 +143,7 @@ namespace DatingApp.API.Data
                     break;
             }
 
-            messages = messages.OrderByDescending(d => d.MessageSentDate);
+            messages = messages.OrderByDescending(d => d.DateSent);
             return await PagedList<Message>.CreateAsync(messages,
                 messageParams.PageNumber, messageParams.PageSize);
         }
@@ -155,9 +155,9 @@ namespace DatingApp.API.Data
                 .Include(u => u.Recipient).ThenInclude(p => p.Photos)
                 .Where(m => m.RecipientId == userId && m.RecipientDeleted == false
                     && m.SenderId == otherUserId
-                    || m.RecipientId == otherUserId && m.SenderDelete == false
+                    || m.RecipientId == otherUserId && m.SenderDeleted == false
                     && m.SenderId == userId)
-                .OrderByDescending(m => m.MessageSentDate)
+                .OrderByDescending(m => m.DateSent)
                 .ToListAsync();
 
             return messages;
