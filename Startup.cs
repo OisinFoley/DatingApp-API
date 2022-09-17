@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Text;
 using AutoMapper;
@@ -58,7 +59,6 @@ namespace DatingApp.API
             services.AddDbContext<DataContext>(x => {
                 x.UseLazyLoadingProxies();
                 x.UseMySql(dbConnectionString);
-                // x.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
             ConfigureServices(services);
         }
