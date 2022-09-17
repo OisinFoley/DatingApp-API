@@ -1,6 +1,9 @@
 using System.Net;
 using System.Text;
 using AutoMapper;
+using Azure.Core;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,9 +39,26 @@ namespace DatingApp.API
 
         public void ConfigureProductionServices(IServiceCollection services)
         {
+            SecretClientOptions options = new SecretClientOptions()
+                {
+                    Retry =
+                    {
+                        Delay= TimeSpan.FromSeconds(2),
+                        MaxDelay = TimeSpan.FromSeconds(16),
+                        MaxRetries = 5,
+                        Mode = RetryMode.Exponential
+                    }
+                };
+            var client = new SecretClient(new Uri($"https://{Configuration.GetSection("KeyVaultName").Value}.vault.azure.net/"), new DefaultAzureCredential(),options);
+
+            KeyVaultSecret secret = client.GetSecret(Configuration.GetSection("MySqlConnectionStringVaultKey").Value);
+
+            string dbConnectionString = secret.Value;
+
             services.AddDbContext<DataContext>(x => {
                 x.UseLazyLoadingProxies();
-                x.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+                x.UseMySql(dbConnectionString);
+                // x.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
             ConfigureServices(services);
         }
